@@ -45,20 +45,26 @@ class CardCrawlerSpider(scrapy.Spider):
         # It's possible that two cards exist in this table (double card)
         # Ensure that both get recorded
         if card_table.xpath('//table[@class="cardDetails cardComponent"]'):
+            
             # Multiple Cards!
-            print "Multiple cards..."
+            card_components = card_table.xpath('//td[@class="cardComponentContainer"]')
+            
+            front_card = self.load_card(card_components[0].xpath('//table[@class="cardDetails cardComponent"]'),
+                                        response)
+            back_card = self.load_card(card_components[1].xpath('//table[@class="cardDetails cardComponent"]'),
+                                        response)
+
+            yield front_card
+            yield back_card
 
         elif card_table.xpath('//table[@class="cardDetails"]'):
+        
             # Single Card!
             physical_card = MTG_Card();
             
             new_card = self.load_card(card_table.xpath('//table[@class="cardDetails"]'), response)
             new_card['gatherer_id'] = get_gatherer_id(response)
             
-            #physical_card['front_card_name'] = new_card['name']
-            #physical_card['back_card_name'] = ''
-            #physical_card['gatherer_id'] = new_card['gatherer_id']
-
             yield new_card
         else:
             # Error!

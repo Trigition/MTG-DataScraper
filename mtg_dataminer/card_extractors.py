@@ -117,8 +117,13 @@ def get_text(xml_path, *nested_tags):
 
 # This method gets the image path
 def get_image_url(image_xpath, response):
-    relative_url = image_xpath.xpath('./div/img/@src').extract()[0]
-    image_url = response.urljoin(relative_url)
+    relative_url = image_xpath.xpath('./div/img/@src').extract()
+    
+    if len(relative_url) is 0:
+        # Attempt to recover
+        relative_url = image_xpath.xpath('./img/@src').extract()
+    
+    image_url = response.urljoin(relative_url[0])
     return [image_url]
 
 def get_filename(card_name, set_name):
