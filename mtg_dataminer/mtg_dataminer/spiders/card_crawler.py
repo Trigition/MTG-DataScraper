@@ -76,6 +76,9 @@ class CardCrawlerSpider(scrapy.Spider):
         card_image_container = card_detail_table.xpath(paths.CARD_IMAGE_CONTAINER)
         card_detail_container = card_detail_table.xpath(paths.CARD_DETAILS_CONTAINER)
         
+        # Information on the card is stored in a table
+        # Each row of the table stores a div for the information 'key'
+        # and another div for its 'value'
         details = extract_row_key_value_pairs(card_detail_container)
 
         # New card objects are instantiated before 'load_card' is called
@@ -84,13 +87,19 @@ class CardCrawlerSpider(scrapy.Spider):
         
         # Extract Common card attributes
         new_card['name'] = get_text(details['Card Name'])
-        new_card['image_urls'] = get_image_url(card_image_container, response)
         new_card['supertypes'], new_card['subtypes'] = get_super_and_sub_type(details["Types"])
         new_card['rarity'] = get_text(details['Rarity'], 'span')
         new_card['set'] = get_expansion(details['Expansion'])
         new_card['artist'] = get_text(details['Artist'], 'a')
         new_card['collectors_number'] = get_text(details['Card Number'])       
         
+        # Extract image of the card
+        # Use custom field name
+        new_card['image_urls'] = get_image_url(card_image_container, response)
+        new_card['image_name'] = new_card['set'].replace(' ', '-') + \
+                                 '__' + \
+                                 new_card['name'].replace(' ', '-')
+
         # Extract optional card attributes
         try:
             new_card['oracle_text'] = get_card_textbox(details["Card Text"])

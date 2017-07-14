@@ -71,7 +71,7 @@ DOWNLOAD_DELAY = 5
 #ITEM_PIPELINES = {
 #    'mtg_dataminer.pipelines.MtgDataminerPipeline': 300,
 #}
-ITEM_PIPELINES = {'scrapy.pipelines.images.ImagesPipeline' : 1,}
+ITEM_PIPELINES = {'mtg_dataminer.pipelines.MtgImagesPipeline' : 1,}
 IMAGES_STORE = './images'
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See http://doc.scrapy.org/en/latest/topics/autothrottle.html

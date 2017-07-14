@@ -39,6 +39,7 @@ class Card(scrapy.Item):
     # Define Images
     images = scrapy.Field()
     image_urls = scrapy.Field()
+    image_name = scrapy.Field()
 
     #def __repr__(self):
     #    return repr(None)

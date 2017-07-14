@@ -15,9 +15,9 @@ CARD_HTML_TABLE = '//table[@class="cardComponentTable"]'
 
 # Describe the difference in HTML between a page which describes
 # a single card vs. a double card
-MULTIPLE_CARD_PATH = '//table[@class="cardDetails cardComponent"]'
-MULTIPLE_CARD_CONTAINER = '//td[@class="cardComponentContainer"]'
-INDIVIDUAL_MULTIPLE_CARD = '//table[@class="cardDetails cardComponent"]'
+MULTIPLE_CARD_PATH = './/table[@class="cardDetails cardComponent"]'
+MULTIPLE_CARD_CONTAINER = './/td[@class="cardComponentContainer"]'
+INDIVIDUAL_MULTIPLE_CARD = './/table[@class="cardDetails cardComponent"]'
 
 SINGLE_CARD_PATH = '//table[@class="cardDetails"]'
 

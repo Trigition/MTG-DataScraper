@@ -21,7 +21,7 @@ echo "Web crawling for set: $MAGIC_SET"
 scrapy crawl card_crawler -a card_set="$1" -o "$1.csv" -t csv
 
 echo "Finished crawling, preparing your results..."
-tar -czf "$1.tar.gz" images/full/
+tar -czf "$1.tar.gz" images/
 echo "Moving results to you"
 
 mv *.csv $DIR
