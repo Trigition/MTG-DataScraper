@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import scrapy
+import paths
 from mtg_dataminer.items import Card
 from mtg_dataminer.items import MTG_Card
 from card_extractors import *
@@ -40,29 +41,27 @@ class CardCrawlerSpider(scrapy.Spider):
     def parse_card_page(self, response):
         
         # Get HTML Table describing card
-        card_table = response.xpath('//table[@class="cardComponentTable"]')
+        card_table = response.xpath(paths.CARD_HTML_TABLE)
         
         # It's possible that two cards exist in this table (double card)
         # Ensure that both get recorded
-        if card_table.xpath('//table[@class="cardDetails cardComponent"]'):
+        if card_table.xpath(paths.MULTIPLE_CARD_PATH):
             
             # Multiple Cards!
-            card_components = card_table.xpath('//td[@class="cardComponentContainer"]')
+            card_components = card_table.xpath(paths.MULTIPLE_CARD_CONTAINER)
             
-            front_card = self.load_card(card_components[0].xpath('//table[@class="cardDetails cardComponent"]'),
-                                        response)
-            back_card = self.load_card(card_components[1].xpath('//table[@class="cardDetails cardComponent"]'),
-                                        response)
+            front_card = self.load_card(card_components[0].xpath(paths.INDIVIDUAL_MULTIPLE_CARD), response)
+            back_card = self.load_card(card_components[1].xpath(paths.INDIVIDUAL_MULTIPLE_CARD), response)
 
             yield front_card
             yield back_card
 
-        elif card_table.xpath('//table[@class="cardDetails"]'):
+        elif card_table.xpath(paths.SINGLE_CARD_PATH):
         
             # Single Card!
             physical_card = MTG_Card();
             
-            new_card = self.load_card(card_table.xpath('//table[@class="cardDetails"]'), response)
+            new_card = self.load_card(card_table.xpath(paths.SINGLE_CARD_PATH), response)
             new_card['gatherer_id'] = get_gatherer_id(response)
             
             yield new_card
@@ -73,13 +72,17 @@ class CardCrawlerSpider(scrapy.Spider):
     # This method loads a single card (for double-faced cards, this method will
     # be called twice
     def load_card(self, card_detail_table, response):
-        card_image_container = card_detail_table.xpath('//td[@class="leftCol"]')
-        card_detail_container = card_detail_table.xpath('//td[@class="rightCol"]')
+
+        card_image_container = card_detail_table.xpath(paths.CARD_IMAGE_CONTAINER)
+        card_detail_container = card_detail_table.xpath(paths.CARD_DETAILS_CONTAINER)
         
         details = extract_row_key_value_pairs(card_detail_container)
 
-        # Extract Common card attributes
+        # New card objects are instantiated before 'load_card' is called
+        # this grabs the appropriate card for this page
         new_card = response.meta['card']
+        
+        # Extract Common card attributes
         new_card['name'] = get_text(details['Card Name'])
         new_card['image_urls'] = get_image_url(card_image_container, response)
         new_card['supertypes'], new_card['subtypes'] = get_super_and_sub_type(details["Types"])
@@ -129,7 +132,10 @@ class CardCrawlerSpider(scrapy.Spider):
         # Get divs that represent a card row
         links = []
         base_url = "http://" + self.allowed_domains[0] + "/Pages"
-        card_divs = response.xpath('//tr/td/div/span[@class="cardTitle"]/a')
+        card_divs = response.xpath(paths.CARD_LINKS)
+
+        # Links are relative to current page. Convert them to absolute urls before
+        # returning them
         for card_div in card_divs:
             relative_link = "../" + card_div.xpath('./@href').extract()[0]
             card_url = response.urljoin( relative_link )
@@ -138,17 +144,19 @@ class CardCrawlerSpider(scrapy.Spider):
         return links
 
     # This method finds the printed text of a card and extracts to current item context
+    # Since this information exists on a separate page, it cannot be extracted by 'load_card'
+    # it needs to be a separate callback function
     def extract_printed_text(self, response):
         item = response.meta['card']
         
-        text = get_card_textbox( response, '//div[@class="cardtextbox"]' )
+        text = get_card_textbox( response, paths.TEXT_BOX_PATH )
         item['printed_text'] = text
         
 
     # Card results are paginated, this method will return
     # the next search result page url if it exists
     def get_next_result_page(self, response):
-        nav_links = response.xpath('//div[@class="paging"]/a')
+        nav_links = response.xpath(paths.NEXT_PAGE)
 
         # Grab next link using the link string: ' >'
         for nav_link in nav_links:

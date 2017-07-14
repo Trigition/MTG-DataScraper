@@ -1,6 +1,6 @@
 import re
 import BeautifulSoup as bs
-import config
+import paths
 from urllib import quote
 
 # Makes a string http safe
@@ -9,12 +9,12 @@ def make_web_safe(string):
 
 # This method constructs a dictionary between a div-class and its HTML content
 def extract_row_key_value_pairs(response):
-    rows = response.xpath('//div[contains(@class, "row")]')
+    rows = response.xpath(paths.ROW_PATH)
     details = {}
 
     for row in rows:
-        key = row.xpath('./div[@class="label"]')
-        value = row.xpath('./div[@class="value"]')
+        key = row.xpath(paths.KEY_PATH)
+        value = row.xpath(paths.VALUE_PATH)
 
         key_str = get_text(key)
         if len(key_str) > 0:
@@ -29,7 +29,7 @@ def extract_row_key_value_pairs(response):
 
     return details
 
-# This method encodes mana and action symbols according to config.py
+# This method encodes mana and action symbols according to paths.py
 def encode_mana_cost(xml_path):
     images = xml_path.xpath('./img')
     mana_costs = []
@@ -73,13 +73,13 @@ def get_super_and_sub_type(xml_path):
 # breaks via newlines
 def get_flavor_text(xml_path):
     
-    text_fields = xml_path.xpath('./div[@class="flavortextbox"]')
+    text_fields = xml_path.xpath(paths.FLAVOR_TEXT_BOX)
     text_strings = [get_text(field) for field in text_fields]
 
     return '\n'.join(text_strings)
 
 # This method extracts the HTML from card text. Any interior images
-# are encoded based upon settings in config.py
+# are encoded based upon settings in paths.py
 def get_card_textbox(xml_path, path='./div[@class="cardtextbox"]'):
     # Text boxes can be a mix of images and text breaks
     # Ensure all get preserved
@@ -94,7 +94,7 @@ def get_card_textbox(xml_path, path='./div[@class="cardtextbox"]'):
     return ''.join(text_lines)
 
 # This method gets the inner HTML of the set row
-# Note images are encoded via config.py
+# Note images are encoded via paths.py
 def get_expansion(xml_path):
     links = xml_path.xpath('./div/a')
     # First link contains image of set
@@ -138,7 +138,7 @@ def get_new_image_path(image_soup):
 
 # This method parses the HTML Tree to find images, specifically
 # those inside of card-box-text divs and encode them based upon
-# settings in config.py
+# settings in paths.py
 def format_html_tree(soup, depth=0):
     if isinstance(soup, bs.NavigableString):
         return
@@ -146,13 +146,13 @@ def format_html_tree(soup, depth=0):
     # Replace image text
     if soup.name == 'img':
         soup['src'] = get_new_image_path(soup)
-        soup['class'] = config.CARD_IMAGE_TOKEN_CLASS
+        soup['class'] = paths.CARD_IMAGE_TOKEN_CLASS
         del soup['align']
         return
     if soup.name == 'div':
         # Remove styling
         del soup['style']
-        soup['class'] = config.CARD_TEXT_BOX_CLASS
+        soup['class'] = paths.CARD_TEXT_BOX_CLASS
     
     for content in soup.contents:
         format_html_tree(content, depth+1)
