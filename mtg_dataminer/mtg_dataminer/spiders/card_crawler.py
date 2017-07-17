@@ -95,9 +95,9 @@ class CardCrawlerSpider(scrapy.Spider):
         # Extract image of the card
         # Use custom field name
         new_card['image_urls'] = get_image_url(card_image_container, response)
-        new_card['image_name'] = new_card['set'].replace(' ', '-') + \
+        new_card['image_name'] = new_card['set'] + \
                                  '__' + \
-                                 new_card['name'].replace(' ', '-')
+                                 new_card['name']
 
         # Extract optional card attributes
         try:

@@ -16,7 +16,10 @@ class MtgImagesPipeline(ImagesPipeline):
             yield scrapy.Request(image_url, meta={'card':item})
 
     def file_path(self, request, response=None, info=None):
-        return '%s.jpg' % request.meta['card']['image_name']
+        cur_card = request.meta['card']
+        set_name = cur_card['set']
+        image_name = cur_card['image_name']
+        return '%s/%s.jpg' % (set_name, image_name)
 
 class MtgDataminerPipeline(object):
     def process_item(self, item, spider):
