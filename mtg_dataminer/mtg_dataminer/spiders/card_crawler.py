@@ -91,7 +91,6 @@ class CardCrawlerSpider(scrapy.Spider):
         new_card['rarity'] = get_text(details['Rarity'], 'span')
         new_card['set'] = get_expansion(details['Expansion'])
         new_card['artist'] = get_text(details['Artist'], 'a')
-        new_card['collectors_number'] = get_text(details['Card Number'])       
         
         # Extract image of the card
         # Use custom field name
@@ -131,7 +130,13 @@ class CardCrawlerSpider(scrapy.Spider):
             new_card['loyalty'] = get_text(details['Loyalty'])
         except KeyError:
             new_card['loyalty'] = None
-        
+
+        try:
+            new_card['collectors_number'] = get_text(details['Card Number'])
+        except KeyError:
+            new_card['collectors_number'] = None
+
+
         print "Grabbed: %s" % new_card['name']
 
         return new_card
