@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 
 if [[ "$#" -ne 1 ]]; then
-    echo "Wrong number of parameters!"
+    echo "Wrong number of parameters! Got: $#"
     echo "Usage:"
     echo "\t./Gatherer_Dataminer \"[Quoted Card Set]\""
     exit 1
