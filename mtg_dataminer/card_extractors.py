@@ -62,10 +62,10 @@ def get_power_toughness(xml_path):
 def get_super_and_sub_type(xml_path):
     types = get_text(xml_path).split(u' \u2014 ')
     if len(types) > 1:
-        subtype = types[1]
+        subtype = types[1].strip()
     else:
         subtype = None
-    supertype = types[0]
+    supertype = types[0].strip()
     return (supertype, subtype)
 
 # Get Flavor Text. Line breaks are described as div tags,

@@ -2,7 +2,8 @@
 *.jpg
 *.csv
 *.tar.gz
-
+*.out
+*.txt
 
 # Created by https://www.gitignore.io/api/python
 
