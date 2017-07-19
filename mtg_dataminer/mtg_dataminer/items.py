@@ -11,8 +11,8 @@ import scrapy
 class MTG_Card(scrapy.Item):
 
     # Define physical MTG Card, a maximum of 2 'cards' may exist per MTG Card
-    front_card_name = scrapy.Field()
-    back_card_name = scrapy.Field()
+    front = scrapy.Field()
+    back = scrapy.Field()
     gatherer_id = scrapy.Field()
 
 # This Item represents a Card. In such it has a name, type, image, cost, etc

@@ -17,20 +17,20 @@ CARD_HTML_TABLE = '//table[@class="cardComponentTable"]'
 # a single card vs. a double card
 MULTIPLE_CARD_PATH = './/table[@class="cardDetails cardComponent"]'
 MULTIPLE_CARD_CONTAINER = './/td[@class="cardComponentContainer"]'
-INDIVIDUAL_MULTIPLE_CARD = './/table[@class="cardDetails cardComponent"]'
+INDIVIDUAL_MULTIPLE_CARD = './div/table[@class="cardDetails cardComponent"]'
 
 SINGLE_CARD_PATH = '//table[@class="cardDetails"]'
 
 # Describe where the card image and card details are located
-CARD_IMAGE_CONTAINER = '//td[@class="leftCol"]'
-CARD_DETAILS_CONTAINER = '//td[@class="rightCol"]'
+CARD_IMAGE_CONTAINER = './/td[@class="leftCol"]'
+CARD_DETAILS_CONTAINER = './/td[@class="rightCol"]'
 
 ### ---END PATHS--- ###
 
 ### CARD DETAIL PATHS
 
 # Card details are in rows
-ROW_PATH = '//div[contains(@class, "row")]'
+ROW_PATH = './/div[contains(@class, "row")]'
 
 # Fields are separated by a "label" div and a "value" div
 KEY_PATH = './div[@class="label"]'

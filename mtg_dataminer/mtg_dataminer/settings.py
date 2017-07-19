@@ -14,7 +14,7 @@ BOT_NAME = 'mtg_dataminer'
 SPIDER_MODULES = ['mtg_dataminer.spiders']
 NEWSPIDER_MODULE = 'mtg_dataminer.spiders'
 
-
+#DUPEFILTER_CLASS = 'mtg_dataminer.middlewares.GathererFilter'
 # Set logging level to general info and errors
 # to avoid debug spam
 LOG_LEVEL = 'WARNING'
