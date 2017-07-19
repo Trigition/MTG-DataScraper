@@ -90,8 +90,12 @@ class CardCrawlerSpider(scrapy.Spider):
         new_card['supertypes'], new_card['subtypes'] = get_super_and_sub_type(details["Types"])
         new_card['rarity'] = get_text(details['Rarity'], 'span')
         new_card['set'] = get_expansion(details['Expansion'])
-        new_card['artist'] = get_text(details['Artist'], 'a')
-        
+        try:
+            new_card['artist'] = get_text(details['Artist'], 'a')
+        except IndexError:
+            # Attempt to recover
+            new_card['artist'] = get_text(details['Artist'])
+
         # Extract image of the card
         # Use custom field name
         new_card['image_urls'] = get_image_url(card_image_container, response)

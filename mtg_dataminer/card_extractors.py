@@ -53,7 +53,7 @@ def get_gatherer_id(response):
 def get_power_toughness(xml_path):
     pt_string = get_text(xml_path)
     # Split string
-    power, toughness = pt_string.split('/')
+    power, toughness = pt_string.split(' / ')
     power = power.strip()
     toughness = toughness.strip()
     return (power, toughness)
