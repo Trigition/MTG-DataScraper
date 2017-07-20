@@ -99,6 +99,7 @@ class CardCrawlerSpider(scrapy.Spider):
         new_card['supertypes'], new_card['subtypes'] = get_super_and_sub_type(details["Types"])
         new_card['rarity'] = get_text(details['Rarity'], 'span')
         new_card['set'] = get_expansion(details['Expansion'])
+        
         try:
             new_card['artist'] = get_text(details['Artist'], 'a')
         except IndexError:

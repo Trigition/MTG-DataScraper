@@ -45,8 +45,7 @@ def find_abilities(data, ability_filename="all_abilities.txt"):
         found_abilities = which_abilities_in_text(abilities, oracle_text)
         if len(found_abilities) > 0:
             print '%s [%s] has abilities:' % (row['name'], row['gatherer_id']), found_abilities
-            graph.add_node( (row['set'] + '__' + row['name']), label=row['name'])
-            for ability in found_abilities:
+            graph.add_node(row['name'], label=row['name'], color=row['colors'])
                 
 
 find_abilities( get_data_frames() )

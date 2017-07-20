@@ -32,13 +32,13 @@ class Card(scrapy.Item):
     printed_text = scrapy.Field()
     rarity = scrapy.Field()
     set = scrapy.Field()
-    set_code = scrapy.Field()
     artist = scrapy.Field()
     flavor_text = scrapy.Field()
     collectors_number = scrapy.Field()
     loyalty = scrapy.Field()
 
     # Set fields which cannot be found on gatherer
+    set_code = scrapy.Field()
     border = scrapy.Field()
     colors = scrapy.Field()
     foil = scrapy.Field()
