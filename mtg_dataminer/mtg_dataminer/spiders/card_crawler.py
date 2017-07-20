@@ -149,6 +149,9 @@ class CardCrawlerSpider(scrapy.Spider):
         except KeyError:
             new_card['collectors_number'] = None
 
+        # Finally, create field which aren't given but can be deduced
+        new_card['colors'] = get_color(new_card['mana_cost'])
+
         return new_card
 
     # This method finds hyperlinks to cards on a roster page

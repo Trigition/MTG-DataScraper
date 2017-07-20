@@ -1,11 +1,12 @@
 import re
 import BeautifulSoup as bs
 import paths
-from urllib import quote
+import icon_config
+import urllib
 
 # Makes a string http safe
 def make_web_safe(string):
-    return quote(string)
+    return urllib.quote_plus(string)
 
 # This method constructs a dictionary between a div-class and its HTML content
 def extract_row_key_value_pairs(response):
@@ -35,10 +36,8 @@ def encode_mana_cost(xml_path):
     mana_costs = []
 
     for image in images:
-        soup = bs.BeautifulSoup(image.extract())
-        soup.img['src'] = get_new_image_path(soup.img)
-        del soup.img['align']
-        mana_costs.append(str(soup.img))
+        mana_cost = icon_config.get_icon(image)
+        mana_costs.append(mana_cost)
 
     return ''.join(mana_costs)
 
@@ -97,15 +96,42 @@ def get_card_textbox(xml_path, path='./div[@class="cardtextbox"]'):
 # Note images are encoded via paths.py
 def get_expansion(xml_path):
     links = xml_path.xpath('./div/a')
+    
     # First link contains image of set
     # Second link contains set name
-    #image = bs.BeautifulSoup( links[0].xpath('./img').extract() )
     text = links[1].xpath('text()').extract()[0]
 
-    #image['src'] = get_new_image_path(image)
-    #del image['align']
-    #del image['style']
-    return text #str(image) + text
+    return text
+
+def get_color(mana_cost):
+    if mana_cost is None or mana_cost == '':
+        return ''
+    
+    soup = bs.BeautifulSoup(mana_cost)
+
+    colors = set()
+    mana_costs = soup.findAll('i')
+    
+    # For each cost icon look at the ms-$ specifier
+    # See icon_config.py
+    for cost in mana_costs:
+        element_class = cost['class']
+        cost_str = element_class.split(' ')[1] # SEE icon_config.py
+        
+        specifier = cost_str[3:].strip() # Cut off 'ms-'
+
+        if 'w' in specifier:
+            colors.add('w')
+        if 'u' in specifier:
+            colors.add('u')
+        if 'b' in specifier:
+            colors.add('b')
+        if 'r' in specifier:
+            colors.add('r')
+        if 'g' in specifier:
+            colors.add('g')
+
+    return ''.join(colors)
 
 # This method extracts any text field within the path (and 
 # extra specified interior tags)
@@ -130,12 +156,6 @@ def get_filename(card_name, set_name):
     filename = card_name.replace(' ', '_') + '__' + set_name.replace(' ', '_')
     return filename
 
-# This method encodes image symbol sources
-def get_new_image_path(image_soup):
-    alt_text = image_soup['alt']
-    alt_text.replace(' ', '-').lower()
-    return alt_text + ".jpg"
-
 # This method parses the HTML Tree to find images, specifically
 # those inside of card-box-text divs and encode them based upon
 # settings in paths.py
@@ -144,15 +164,36 @@ def format_html_tree(soup, depth=0):
         return
 
     # Replace image text
-    if soup.name == 'img':
-        soup['src'] = get_new_image_path(soup)
-        soup['class'] = paths.CARD_IMAGE_TOKEN_CLASS
-        del soup['align']
-        return
-    if soup.name == 'div':
-        # Remove styling
-        del soup['style']
-        soup['class'] = paths.CARD_TEXT_BOX_CLASS
+    #if soup.name == 'img':
+    #    soup['src'] = get_new_image_path(soup)
+    #    soup['class'] = paths.CARD_IMAGE_TOKEN_CLASS
+    #    del soup['align']
+    #    return
+    #if soup.name == 'div':
+    #    # Remove styling
+    #    del soup['style']
+    #    soup['class'] = paths.CARD_TEXT_BOX_CLASS
     
+    if soup.name == 'img':
+        # Replace with appropriate tag
+        soup.name = icon_config.ICON_TAG
+
+        # Replace html class
+        img_url = soup['src']
+        icon_specifier = icon_config.get_icon_specifier(img_url)
+        soup['class'] = icon_config.construct_icon_class(icon_specifier)
+
+        # Delete unnecessary attributes
+        del soup['style']
+        del soup['src']
+        del soup['alt']
+        del soup['align']
+
+    if soup.name == 'div':
+        # Replace class
+        soup['class'] = paths.CARD_TEXT_BOX_CLASS
+        # Delete unnecessary stylings
+        del soup['style']
+
     for content in soup.contents:
         format_html_tree(content, depth+1)

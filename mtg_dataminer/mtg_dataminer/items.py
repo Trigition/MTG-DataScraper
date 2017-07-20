@@ -36,6 +36,8 @@ class Card(scrapy.Item):
     collectors_number = scrapy.Field()
     loyalty = scrapy.Field()
 
+    colors = scrapy.Field()
+
     # Define Images
     images = scrapy.Field()
     image_urls = scrapy.Field()
