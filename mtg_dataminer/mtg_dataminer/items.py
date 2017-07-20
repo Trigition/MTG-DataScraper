@@ -19,6 +19,7 @@ class MTG_Card(scrapy.Item):
 class Card(scrapy.Item):
 
     # Define the fields for a MTG "card"
+    # The first set of fields are those that can be found on gatherer
     gatherer_id = scrapy.Field()
     name = scrapy.Field()
     mana_cost = scrapy.Field() # <- Determine how to encode
@@ -31,17 +32,19 @@ class Card(scrapy.Item):
     printed_text = scrapy.Field()
     rarity = scrapy.Field()
     set = scrapy.Field()
+    set_code = scrapy.Field()
     artist = scrapy.Field()
     flavor_text = scrapy.Field()
     collectors_number = scrapy.Field()
     loyalty = scrapy.Field()
 
+    # Set fields which cannot be found on gatherer
+    border = scrapy.Field()
     colors = scrapy.Field()
+    foil = scrapy.Field()
+    frame = scrapy.Field()
 
     # Define Images
     images = scrapy.Field()
     image_urls = scrapy.Field()
     image_name = scrapy.Field()
-
-    #def __repr__(self):
-    #    return repr(None)

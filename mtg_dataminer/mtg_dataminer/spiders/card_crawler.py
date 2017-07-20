@@ -149,6 +149,17 @@ class CardCrawlerSpider(scrapy.Spider):
         except KeyError:
             new_card['collectors_number'] = None
 
+        # Using MTG JSON Attempt to load set attributes
+        try:
+            new_card['set_code'] = set_code_lookup[new_card['set']]
+            new_card['border'] = border_lookup[new_card['set_code']]
+            new_card['foil'] = foil_lookup[new_card['set_code']]
+            new_card['frame'] = card_frame_lookup[new_card['set_code']]
+        except KeyError:
+            print "No code for set: %s" % new_card['set']
+            new_card['set_code'] = None
+
+
         # Finally, create field which aren't given but can be deduced
         new_card['colors'] = get_color(new_card['mana_cost'])
 
