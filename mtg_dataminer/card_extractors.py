@@ -131,8 +131,10 @@ def get_color(mana_cost):
             colors.add('r')
         if 'g' in specifier:
             colors.add('g')
-
-    return ''.join(colors)
+    if len(colors) == 0:
+        return 'c'
+    else:
+        return ''.join(colors)
 
 # This method extracts any text field within the path (and 
 # extra specified interior tags)
