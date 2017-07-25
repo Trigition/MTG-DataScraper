@@ -16,8 +16,20 @@ class CardCrawlerSpider(scrapy.Spider):
     def __init__(self, *args, **kwargs):
         super(CardCrawlerSpider, self).__init__(*args, **kwargs)
         
+        # Interpret Scrapy Command Line Arguments
+        
         card_search = 'set=[' + make_web_safe( kwargs.get('card_set') ) + ']'
-        self.start_urls = [self.base_search_url + card_search ]
+        variant_flag = kwargs.get('variants')
+
+        if variant_flag.lower() == 'true':
+            print "Scrubbing for variants"
+            card_search = 'set=[' + make_web_safe('"' + kwargs.get('card_set') + '"') + ']'
+            self.variants = True
+            self.start_urls = [self.base_search_url + 'action=advanced&' + card_search ]
+        else:
+            self.variants = False
+            self.start_urls = [self.base_search_url + card_search ]
+        print self.start_urls
 
     # This default parse method is called upon the first search
     # This method merely calls our other, more specific, parse methods
@@ -35,6 +47,16 @@ class CardCrawlerSpider(scrapy.Spider):
 
             yield response.follow(printed_link, self.extract_printed_text, meta={'card':new_card})
             yield response.follow(clean_link, self.parse_card_page, meta={'card':new_card})
+
+            # If variants are wanted, add them to request queue
+            if self.variants:
+                variant_links = self.extract_variant_links(response)
+
+                for variant_link in variant_links:
+                    variant_card = MTG_Card()
+                    variant_card['front'] = Card()
+                    variant_card['back'] = Card()
+                    yield response.follow(variant_link, self.parse_card_page, meta={'card':variant_card})
         
         # Go to next page if it exists
         next_page = self.get_next_result_page(response)
@@ -98,7 +120,7 @@ class CardCrawlerSpider(scrapy.Spider):
         new_card['name'] = get_text(details['Card Name'])
         new_card['supertypes'], new_card['subtypes'] = get_super_and_sub_type(details["Types"])
         new_card['rarity'] = get_text(details['Rarity'], 'span')
-        new_card['set'] = get_expansion(details['Expansion'])
+        new_card['set_name'] = get_expansion(details['Expansion'])
         
         try:
             new_card['artist'] = get_text(details['Artist'], 'a')
@@ -109,7 +131,7 @@ class CardCrawlerSpider(scrapy.Spider):
         # Extract image of the card
         # Use custom field name
         new_card['image_urls'] = get_image_url(card_image_container, response)
-        new_card['image_name'] = new_card['set'] + \
+        new_card['image_name'] = new_card['set_name'] + \
                                  '__' + \
                                  new_card['name']
 
@@ -152,12 +174,12 @@ class CardCrawlerSpider(scrapy.Spider):
 
         # Using MTG JSON Attempt to load set attributes
         try:
-            new_card['set_code'] = set_code_lookup[new_card['set']]
+            new_card['set_code'] = set_code_lookup[new_card['set_name']]
             new_card['border'] = border_lookup[new_card['set_code']]
             new_card['foil'] = foil_lookup[new_card['set_code']]
             new_card['frame'] = card_frame_lookup[new_card['set_code']]
         except KeyError:
-            print "No code for set: %s" % new_card['set']
+            print "No code for set: %s" % new_card['set_name']
             new_card['set_code'] = None
 
 
@@ -170,7 +192,6 @@ class CardCrawlerSpider(scrapy.Spider):
     def extract_card_links(self, response):
         # Get divs that represent a card row
         links = []
-        base_url = "http://" + self.allowed_domains[0] + "/Pages"
         card_divs = response.xpath(paths.CARD_LINKS)
 
         # Links are relative to current page. Convert them to absolute urls before
@@ -179,6 +200,20 @@ class CardCrawlerSpider(scrapy.Spider):
             relative_link = "../" + card_div.xpath('./@href').extract()[0]
             card_url = response.urljoin( relative_link )
             links.append(card_url)
+
+        return links
+
+    # This method extracts the hyperlinks to any card sets that may exist
+    def extract_variant_links(self, response):
+        # Extract individual links to the 'same' card in other sets
+        links = []
+        xpath_links = response.xpath(paths.CARD_VARIANT_PATH + '//a')
+
+        # Links are relative to current page. Convert them to absolute urls
+        for link in xpath_links:
+            relative_link = "../" + link.xpath('./@href').extract()[0]
+            variant_url = response.urljoin( relative_link )
+            links.append(variant_url)
 
         return links
 

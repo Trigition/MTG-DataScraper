@@ -13,6 +13,10 @@ CARD_LINKS = '//tr/td/div/span[@class="cardTitle"]/a'
 # Path to the table which holds information on a card
 CARD_HTML_TABLE = '//table[@class="cardComponentTable"]'
 
+# Path to card variants
+# Note that this path is for the 'results' page
+CARD_VARIANT_PATH = '//div[contains(@class, "otherSetSection")]/div[@class="rightCol"]'
+
 # Describe the difference in HTML between a page which describes
 # a single card vs. a double card
 MULTIPLE_CARD_PATH = './/table[@class="cardDetails cardComponent"]'

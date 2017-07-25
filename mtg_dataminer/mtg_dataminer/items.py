@@ -31,7 +31,7 @@ class Card(scrapy.Item):
     oracle_text = scrapy.Field()
     printed_text = scrapy.Field()
     rarity = scrapy.Field()
-    set = scrapy.Field()
+    set_name = scrapy.Field()
     artist = scrapy.Field()
     flavor_text = scrapy.Field()
     collectors_number = scrapy.Field()
