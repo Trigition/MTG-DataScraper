@@ -7,12 +7,13 @@ from card_extractors import *
 
 # Main Spider
 class CardCrawlerSpider(scrapy.Spider):
+    
     name = 'card_crawler'
     allowed_domains = ['gatherer.wizards.com']
     base_search_url = 'http://gatherer.wizards.com/Pages/Search/Default.aspx/?'
     defined_ids = []
-    #start_urls = ['http://gatherer.wizards.com/Pages/Search/Default.aspx/']
 
+    # Define actions upon initialization of spider
     def __init__(self, *args, **kwargs):
         super(CardCrawlerSpider, self).__init__(*args, **kwargs)
         
@@ -84,7 +85,7 @@ class CardCrawlerSpider(scrapy.Spider):
             front_card['gatherer_id'] = get_gatherer_id(response)
             back_card['gatherer_id'] = get_gatherer_id(response)
 
-            print "Double Card: %s // %s, %s" % (front_card['name'], back_card['name'], front_card['gatherer_id'])
+            print "Double Card: %s // %s, %s" % (front_card['card_name'], back_card['card_name'], front_card['gatherer_id'])
             yield front_card
             yield back_card
 
@@ -94,7 +95,7 @@ class CardCrawlerSpider(scrapy.Spider):
             new_card = self.load_card(card_table.xpath(paths.SINGLE_CARD_PATH), response)
             new_card['gatherer_id'] = get_gatherer_id(response)
             
-            print "Card: %s, %s" % (new_card['name'], new_card['gatherer_id'])
+            print "Card: %s, %s" % (new_card['card_name'], new_card['gatherer_id'])
             yield new_card
         else:
             # Error!
@@ -117,7 +118,7 @@ class CardCrawlerSpider(scrapy.Spider):
         new_card = response.meta['card'][side]
         
         # Extract Common card attributes
-        new_card['name'] = get_text(details['Card Name'])
+        new_card['card_name'] = get_text(details['Card Name'])
         new_card['supertypes'], new_card['subtypes'] = get_super_and_sub_type(details["Types"])
         new_card['rarity'] = get_text(details['Rarity'], 'span')
         new_card['set_name'] = get_expansion(details['Expansion'])
@@ -130,10 +131,12 @@ class CardCrawlerSpider(scrapy.Spider):
 
         # Extract image of the card
         # Use custom field name
+        # Due to meld cards, this selection may fail
         new_card['image_urls'] = get_image_url(card_image_container, response)
         new_card['image_name'] = new_card['set_name'] + \
-                                 '__' + \
-                                 new_card['name']
+                                '__' + \
+                                new_card['card_name']
+
 
         # Extract optional card attributes
         try:
@@ -175,9 +178,10 @@ class CardCrawlerSpider(scrapy.Spider):
         # Using MTG JSON Attempt to load set attributes
         try:
             new_card['set_code'] = set_code_lookup[new_card['set_name']]
-            new_card['border'] = border_lookup[new_card['set_code']]
+            new_card['border_type'] = border_lookup[new_card['set_code']]
             new_card['foil'] = foil_lookup[new_card['set_code']]
-            new_card['frame'] = card_frame_lookup[new_card['set_code']]
+            new_card['frame_type'] = card_frame_lookup[new_card['set_code']]
+
         except KeyError:
             print "No code for set: %s" % new_card['set_name']
             new_card['set_code'] = None

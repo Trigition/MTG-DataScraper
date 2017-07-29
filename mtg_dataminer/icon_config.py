@@ -8,6 +8,14 @@ ICON_TAG = 'i'
 ICON_CLASSES = "ms ms-$ ms_cost ms_shadow"
 #ICON_TEMPLATE = '<i class="ms ms-$ ms-cost ms-shadow"></i>'
 
+def get_delimited_cost(icon_path):
+    soup = bs.BeautifulSoup(icon_path.extract())
+    img_url = soup.img['src']
+
+    # Delimit Cost
+    cost_id = get_icon_specifier(img_url)
+    return '{' + cost_id + '}'
+
 def get_icon(icon_path):
     return convert_icon(icon_path.extract())
 
@@ -23,7 +31,7 @@ def convert_icon(img_string):
         icon_name = icon_name.strip().lower()
         new_icon_html = construct_icon_string(icon_name)
     except AttributeError:
-        # Likely no name was found, return emptystring bacl
+        # Likely no name was found, return emptystring back
         new_icon_html = ''
    
     return new_icon_html
@@ -32,7 +40,13 @@ def get_icon_specifier(img_url):
     parsed = urlparse.urlparse(img_url)
     icon_specifier = urlparse.parse_qs(parsed.query)['name'][0]
 
-    return icon_specifier
+    # We might need to delimit hybrid costs with '/' but not
+    # Phyrexian costs
+    # We also need to preserve multiple digit converted costs
+    if len(icon_specifier) > 1 and 'p' not in icon_specifier.lower() and not icon_specifier.isdigit():
+        icon_specifier = '/'.join( list(icon_specifier) )
+
+    return icon_specifier.lower()
 
 def construct_icon_string(icon_specifier):
 

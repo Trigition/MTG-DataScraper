@@ -26,8 +26,8 @@ INDIVIDUAL_MULTIPLE_CARD = './div/table[@class="cardDetails cardComponent"]'
 SINGLE_CARD_PATH = '//table[@class="cardDetails"]'
 
 # Describe where the card image and card details are located
-CARD_IMAGE_CONTAINER = './/td[@class="leftCol"]'
-CARD_DETAILS_CONTAINER = './/td[@class="rightCol"]'
+CARD_IMAGE_CONTAINER = './/td[contains(@class,"leftCol")]'
+CARD_DETAILS_CONTAINER = './/td[contains(@class,"rightCol")]'
 
 ### ---END PATHS--- ###
 

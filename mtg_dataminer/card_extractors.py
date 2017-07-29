@@ -31,16 +31,18 @@ def extract_row_key_value_pairs(response):
 
     return details
 
-# This method encodes mana and action symbols according to paths.py
+# This method encodes mana and action symbols according to icon_config.py
 def encode_mana_cost(xml_path):
     images = xml_path.xpath('./img')
     mana_costs = []
 
+    # Construct cost in the form of 2{C}{C} etc
+    # order should be preserved in the order they are observed
     for image in images:
-        mana_cost = icon_config.get_icon(image)
+        mana_cost = icon_config.get_delimited_cost(image)
         mana_costs.append(mana_cost)
 
-    return ''.join(mana_costs).strip()
+    return ''.join(mana_costs)
 
 # This method gets the Gatherer ID from the URL
 def get_gatherer_id(response):
@@ -108,28 +110,21 @@ def get_color(mana_cost):
     if mana_cost is None or mana_cost == '':
         return ''
     
-    soup = bs.BeautifulSoup(mana_cost)
-
     colors = set()
-    mana_costs = soup.findAll('i')
     
     # For each cost icon look at the ms-$ specifier
     # See icon_config.py
-    for cost in mana_costs:
-        element_class = cost['class']
-        cost_str = element_class.split(' ')[1] # SEE icon_config.py
-        
-        specifier = cost_str[3:].strip() # Cut off 'ms-'
+    for cost in mana_cost:
 
-        if 'w' in specifier:
+        if 'w' in cost:
             colors.add('w')
-        if 'u' in specifier:
+        if 'u' in cost:
             colors.add('u')
-        if 'b' in specifier:
+        if 'b' in cost:
             colors.add('b')
-        if 'r' in specifier:
+        if 'r' in cost:
             colors.add('r')
-        if 'g' in specifier:
+        if 'g' in cost:
             colors.add('g')
     if len(colors) == 0:
         return 'c'
@@ -165,18 +160,7 @@ def get_filename(card_name, set_name):
 def format_html_tree(soup, depth=0):
     if isinstance(soup, bs.NavigableString):
         return
-
-    # Replace image text
-    #if soup.name == 'img':
-    #    soup['src'] = get_new_image_path(soup)
-    #    soup['class'] = paths.CARD_IMAGE_TOKEN_CLASS
-    #    del soup['align']
-    #    return
-    #if soup.name == 'div':
-    #    # Remove styling
-    #    del soup['style']
-    #    soup['class'] = paths.CARD_TEXT_BOX_CLASS
-    
+   
     if soup.name == 'img':
         # Replace with appropriate tag
         soup.name = icon_config.ICON_TAG

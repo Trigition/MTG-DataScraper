@@ -17,7 +17,7 @@ class MtgImagesPipeline(ImagesPipeline):
 
     def file_path(self, request, response=None, info=None):
         cur_card = request.meta['card']
-        set_name = cur_card['set']
+        set_name = cur_card['set_name']
         image_name = cur_card['image_name']
         return '%s/%s.jpg' % (set_name, image_name)
 
