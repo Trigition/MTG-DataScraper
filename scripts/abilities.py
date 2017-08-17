@@ -2,7 +2,6 @@
 
 import pandas as pd
 import argparse
-import networkx as nx
 
 parser = argparse.ArgumentParser(description="This python scripts attempts to recognize abilities in card text")
 parser.add_argument('inputs', help='Input CSV files', nargs='+')
@@ -18,34 +17,22 @@ def get_data_frames():
     return all_cards
 
 def get_defined_abilities(ability_filename):
-    defined_abilities = [line.strip() for line in open(ability_filename, 'r').readlines()]
+    defined_abilities = [line.strip().lower() for line in open(ability_filename, 'r').readlines()]
     return defined_abilities
 
-def load_abilities(abilities, graph):
-    for ability in abilities:
-        graph.add_node(ability)
+all_abilities = get_defined_abilities('all_abilities.txt')
+all_cards = get_data_frames()
+all_cards = all_cards.dropna(subset=['oracle_text'])
 
-def which_abilities_in_text(abilities, oracle_text):
-    found_abilities = []
-    for ability in abilities:
-        try:
-            if ability.lower() in oracle_text.lower():
-                found_abilities.append(ability)
-        except AttributeError:
-            return []
-    return found_abilities
+ability_joins_table = []
 
-def find_abilities(data, ability_filename="all_abilities.txt"):
-    graph = nx.DiGraph()
-    abilities = get_defined_abilities(ability_filename)
-    load_abilities(abilities, graph)
+for index, card in all_cards.iterrows():
+    for ability in all_abilities:
+        if ability in card['oracle_text'].lower():
+            row = {}
+            row['card_id'] = card['name']
+            row['ability_id'] = ability
+            
+            ability_joins_table.append(row)
 
-    for index, row in data.iterrows():
-        oracle_text = row['oracle_text']
-        found_abilities = which_abilities_in_text(abilities, oracle_text)
-        if len(found_abilities) > 0:
-            print '%s [%s] has abilities:' % (row['name'], row['gatherer_id']), found_abilities
-            graph.add_node(row['name'], label=row['name'], color=row['colors'])
-                
-
-find_abilities( get_data_frames() )
+print pd.DataFrame(ability_joins_table)
