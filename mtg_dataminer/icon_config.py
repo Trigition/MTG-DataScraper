@@ -1,5 +1,5 @@
-import BeautifulSoup as bs
-import urlparse
+import bs4 as bs
+from urllib import parse
 
 # '$' is replaced with cost specifier, like 'g' for 'green' mana cost
 # https://github.com/andrewgioia/Mana
@@ -37,8 +37,8 @@ def convert_icon(img_string):
     return new_icon_html
 
 def get_icon_specifier(img_url):
-    parsed = urlparse.urlparse(img_url)
-    icon_specifier = urlparse.parse_qs(parsed.query)['name'][0]
+    parsed = parse.urlparse(img_url)
+    icon_specifier = parse.parse_qs(parsed.query)['name'][0]
 
     # We might need to delimit hybrid costs with '/' but not
     # Phyrexian costs

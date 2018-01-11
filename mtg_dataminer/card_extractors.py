@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 import re
-import BeautifulSoup as bs
+import bs4 as bs
 import paths
 import icon_config
 import urllib
 
 # Makes a string http safe
 def make_web_safe(string):
-    return urllib.quote_plus(string)
+    return urllib.parse.quote_plus(string)
 
 # This method constructs a dictionary between a div-class and its HTML content
 def extract_row_key_value_pairs(response):

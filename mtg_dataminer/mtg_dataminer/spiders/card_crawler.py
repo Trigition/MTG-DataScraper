@@ -23,14 +23,14 @@ class CardCrawlerSpider(scrapy.Spider):
         variant_flag = kwargs.get('variants')
 
         if variant_flag.lower() == 'true':
-            print "Scrubbing for variants"
+            print("Scrubbing for variants")
             card_search = 'set=[' + make_web_safe('"' + kwargs.get('card_set') + '"') + ']'
             self.variants = True
             self.start_urls = [self.base_search_url + 'action=advanced&' + card_search ]
         else:
             self.variants = False
             self.start_urls = [self.base_search_url + card_search ]
-        print self.start_urls
+        print(self.start_urls)
 
     # This default parse method is called upon the first search
     # This method merely calls our other, more specific, parse methods
@@ -85,7 +85,7 @@ class CardCrawlerSpider(scrapy.Spider):
             front_card['gatherer_id'] = get_gatherer_id(response)
             back_card['gatherer_id'] = get_gatherer_id(response)
 
-            print "Double Card: %s // %s, %s" % (front_card['card_name'], back_card['card_name'], front_card['gatherer_id'])
+            print("Double Card: %s // %s, %s" % (front_card['card_name'], back_card['card_name'], front_card['gatherer_id']))
             yield front_card
             yield back_card
 
@@ -95,11 +95,11 @@ class CardCrawlerSpider(scrapy.Spider):
             new_card = self.load_card(card_table.xpath(paths.SINGLE_CARD_PATH), response)
             new_card['gatherer_id'] = get_gatherer_id(response)
             
-            print "Card: %s, %s" % (new_card['card_name'], new_card['gatherer_id'])
+            print("Card: %s, %s" % (new_card['card_name'], new_card['gatherer_id']))
             yield new_card
         else:
             # Error!
-            print "Error parsing page:", response.url
+            print("Error parsing page:", response.url)
 
     # This method loads a single card (for double-faced cards, this method will
     # be called twice
@@ -183,7 +183,7 @@ class CardCrawlerSpider(scrapy.Spider):
             new_card['frame_type'] = card_frame_lookup[new_card['set_code']]
 
         except KeyError:
-            print "No code for set: %s" % new_card['set_name']
+            print("No code for set: %s" % new_card['set_name'])
             new_card['set_code'] = None
 
 
